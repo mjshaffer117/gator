@@ -3,27 +3,47 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/mjshaffer117/gator/internal/config"
 )
 
+type state struct {
+	cfg *config.Config
+}
+
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
-		log.Fatalf("Error reading config: %v", err)
+		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("Read config: %+v\n", cfg)
+	fmt.Printf("read config: %+v\n", cfg)
 	// Output with field names and values, e.g. {DatabaseURL:postgres://localhost:5432/mydb CurrentUser:Michael}
-
-	err = cfg.SetUser("Michael")
-	if err != nil {
-		log.Fatalf("Error setting user: %v", err)
-	}
 
 	cfg, err = config.Read()
 	if err != nil {
-		log.Fatalf("Error reading config file: %v", err)
+		log.Fatalf("error reading config file: %v", err)
 	}
 
-	fmt.Printf("Updated config file: %+v\n", cfg)
+	cmds := commands{
+		make(map[string]func(*state, *command) error),
+	}
+	cmds.register("login", handlerLogin)
+
+	// Check for two arguments: First is the program name, second is the command
+	if len(os.Args) < 2 {
+		log.Fatalf("no command provided")
+	}
+
+	cmd := &command{
+		Name: os.Args[1],
+		Args: os.Args[2:],
+	}
+
+	err = cmds.run(&state{cfg: &cfg}, cmd)
+	if err != nil {
+		log.Fatalf("error running command: %v", err)
+	}
+
+	fmt.Printf("updated config file: %+v\n", cfg)
 }
