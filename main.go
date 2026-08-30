@@ -1,14 +1,18 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
+	_ "github.com/lib/pq" // Importing for side effects ( _ ), package is not refernced directly
 	"github.com/mjshaffer117/gator/internal/config"
+	"github.com/mjshaffer117/gator/internal/database"
 )
 
 type state struct {
+	db  *database.Queries
 	cfg *config.Config
 }
 
@@ -28,6 +32,7 @@ func main() {
 	cmds := commands{
 		make(map[string]func(*state, *command) error),
 	}
+	cmds.register("register", handlerRegister)
 	cmds.register("login", handlerLogin)
 
 	// Check for two arguments: First is the program name, second is the command
@@ -40,7 +45,15 @@ func main() {
 		Args: os.Args[2:],
 	}
 
-	err = cmds.run(&state{cfg: &cfg}, cmd)
+	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	if err != nil {
+		log.Fatalf("error opening database: %v", err)
+	}
+	defer db.Close()
+
+	dbQueries := database.New(db)
+
+	err = cmds.run(&state{db: dbQueries, cfg: &cfg}, cmd)
 	if err != nil {
 		log.Fatalf("error running command: %v", err)
 	}
