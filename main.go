@@ -34,6 +34,7 @@ func main() {
 	}
 	cmds.register("register", handlerRegister)
 	cmds.register("login", handlerLogin)
+	cmds.register("reset", handlerReset)
 
 	// Check for two arguments: First is the program name, second is the command
 	if len(os.Args) < 2 {
