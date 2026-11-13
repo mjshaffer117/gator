@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 
@@ -21,7 +20,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("error reading config: %v", err)
 	}
-	fmt.Printf("read config: %+v\n", cfg)
+
+	// fmt.Printf("read config: %+v\n", cfg)
 	// Output with field names and values, e.g. {DatabaseURL:postgres://localhost:5432/mydb CurrentUser:Michael}
 
 	cfg, err = config.Read()
@@ -36,6 +36,7 @@ func main() {
 	cmds.register("login", handlerLogin)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
+	cmds.register("agg", aggregateHandler)
 
 	// Check for two arguments: First is the program name, second is the command
 	if len(os.Args) < 2 {
@@ -60,5 +61,5 @@ func main() {
 		log.Fatalf("error running command: %v", err)
 	}
 
-	fmt.Printf("updated config file: %+v\n", cfg)
+	// fmt.Printf("updated config file: %+v\n", cfg)
 }
