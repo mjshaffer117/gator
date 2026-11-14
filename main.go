@@ -37,6 +37,8 @@ func main() {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", aggregateHandler)
+	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", handlerFeeds)
 
 	// Check for two arguments: First is the program name, second is the command
 	if len(os.Args) < 2 {
